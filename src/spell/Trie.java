@@ -47,8 +47,32 @@ public class Trie implements spell.ITrie {
     }
 
     @Override
+    /**
+     * returns the final node of the word
+     */
     public Node find(String word) {
-        return new Node();
+        //make the word lower case
+        boolean wordExists = true;
+        word = word.toLowerCase();
+        Node currentNode = this.root;
+        int currentIndex = 0;
+        char currentLetter;
+        //iterate through the trie for the length of the word
+        for (int i = 0; i < word.length(); ++i) {
+            currentLetter = word.charAt(i);
+            currentIndex = currentLetter - 'a';
+            //if the letter exists, move down to that node
+            if (currentNode.getChildren()[currentIndex] != null) {
+                currentNode = currentNode.getChildren()[currentIndex];
+            } else {
+                wordExists = false;
+            }
+            //if we're at the last letter of the word and the word count is greater than 0, and the word was never different
+            if (i == word.length() - 1 && currentNode.getValue() > 0 && wordExists) {
+                return currentNode;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -90,10 +114,19 @@ public class Trie implements spell.ITrie {
         }
     }
 
-
+    @Override
     public int hashCode() {
-
-        return 0;
+        int hashCode = 0;
+        int nnullChildren = 0;
+        hashCode = (this.wordCount * this.nodeCount);
+        for (int i = 0; i < this.root.getChildren().length; ++i) {
+            if (this.root.getChildren()[i] != null) {
+                hashCode += i;
+                ++nnullChildren;
+            }
+        }
+        hashCode /= nnullChildren;
+        return hashCode;
     }
 
     /**
