@@ -15,6 +15,7 @@ public class SpellCorrector implements ISpellCorrector {
     @Override
     public void useDictionary(String dictionaryFileName) throws IOException {
         Trie trie = new Trie();
+        //Trie trie2 = new Trie();
         File file = new File(dictionaryFileName);
         Scanner scanner = new Scanner(file);
 
@@ -22,10 +23,14 @@ public class SpellCorrector implements ISpellCorrector {
             String str = scanner.next();
             //System.out.println(str);
             trie.add(str);
+            //trie2.add(str);
             //TODO: this is where you do what ever you want to do with the individual word, ie. add it to the Trie
 
         }
-        System.out.println(trie.toString());
+        //trie2.add("flo");
+        //System.out.println("Trie 1: " + trie.toString());
+        //System.out.println("Trie 2: " + trie2.toString());
+        //System.out.println("equals(): " + trie.equals(trie2));
     }
 
     @Override

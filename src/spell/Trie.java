@@ -4,9 +4,13 @@ public class Trie implements spell.ITrie {
 
     public Trie() {
         this.root = new Node();
+        this.wordCount = 0;
+        this.nodeCount = 1;
     }
 
     private Node root;
+    private int wordCount;
+    private int nodeCount;
     @Override
     public void add(String word) {
         Node currentNode = this.root;
@@ -27,12 +31,16 @@ public class Trie implements spell.ITrie {
                 //Start inserting at the root
                 currentNode.setNode(new Node(), indexOfChar);
                 currentNode = currentNode.getChildren()[indexOfChar];
+                ++this.nodeCount;
             } else {
                 currentNode = currentNode.getChildren()[indexOfChar];
             }
             //if we are at the last character in the word, update its counter
             if (i == word.length() - 1) {
                 currentNode.incrementValue();
+                if (currentNode.getValue() == 1) {
+                    ++this.wordCount;
+                }
             }
         }
         //System.out.println("Word Count: " + currentNode.getValue() + "\n");
@@ -45,12 +53,12 @@ public class Trie implements spell.ITrie {
 
     @Override
     public int getWordCount() {
-        return 0;
+        return this.wordCount;
     }
 
     @Override
     public int getNodeCount() {
-        return 0;
+        return this.nodeCount;
     }
 
     /**
@@ -63,7 +71,6 @@ public class Trie implements spell.ITrie {
         StringBuilder currentWord = new StringBuilder();
         StringBuilder output = new StringBuilder();
         toStringHelper(this.root, currentWord, output);
-
         return output.toString();
     }
 
@@ -91,15 +98,61 @@ public class Trie implements spell.ITrie {
 
     /**
      * must be recursive
-     * @param trieToTest
+     * @param o
      * @return
      */
-    public boolean equals(Trie trieToTest) {
+    @Override
+    public boolean equals(Object o) {
+        //if o == null, return false
+        if (o == null) {
+            return false;
+        }
+        //if o == this, return true ie. o and this are referencing the same object in memory
+        if (o == this) {
+            return true;
+        }
+        //do this and o have the same class? if no return false, else keep going
+        if (!(o instanceof Trie)) {
+            return false;
+        }
+        //cast o to a trie
+        Trie t = (Trie) o;
+        // do this and t have the same wordCount and nodeCount?
+        if (this.nodeCount != t.getNodeCount() || this.wordCount != t.getWordCount()) {
+            return false;
+        }
 
-        return true;
+        return equalsHelper(this.root, t.root);
     }
 
-    //TODO: ToString() method
-    //TODO: HashCode() method
-    //TODO: Equals() method
+    private boolean equalsHelper(Node n1, Node n2) {
+        //compare n1 and n2 to see if they are the same
+            //Do n1 and n2 have the same count? If not, return false
+        if (n1.getValue() != n2.getValue()) {
+            return false;
+        }
+        //Do they have non-null children in the same positions in the child arrays?
+        //Make sure the children arrays are the same length
+        if (n1.getChildren().length != n2.getChildren().length) {
+            return false;
+        }
+        //for each child
+        for (int i = 0; i < n1.getChildren().length; ++i) {
+            //if one node is null but the other isn't, return false. ie. checking that the characters match
+            if ((n1.getChildren()[i] == null && n2.getChildren()[i] != null)
+                    || (n1.getChildren()[i] != null && n2.getChildren()[i] == null)) {
+                return false;
+            }
+            //if the matching nodes are not null, evaluate their sub-trees
+            if (n1.getChildren()[i] != null && n2.getChildren()[i] != null) {
+                // Recurse on the children and compare the child subtrees
+                Node n3 = n1.getChildren()[i];
+                Node n4 = n2.getChildren()[i];
+                if (!equalsHelper(n3, n4)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 }
