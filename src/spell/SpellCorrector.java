@@ -31,6 +31,7 @@ public class SpellCorrector implements ISpellCorrector {
 
     @Override
     public String suggestSimilarWord(String inputWord) {
+        inputWord = inputWord.toLowerCase();
         if (this.trie.find(inputWord) != null) {
             return inputWord;
         }
@@ -42,13 +43,17 @@ public class SpellCorrector implements ISpellCorrector {
             return solutions.elementAt(0);
         } else if (solutions.size() == 0) {
             Set<String> editDistanceTwoSet = generateEditDistanceTwoWords(editDistanceOneSet);
-            //solutions = generateSolutions(editDistanceTwoSet);
+            solutions = generateSolutions(editDistanceTwoSet);
+            if (solutions.size() == 1) {
+                return solutions.elementAt(0);
+            } else if (solutions.size() == 0) {
+                return null;
+            } else {
+                return tieBreaker(solutions);
+            }
         } else {
-            //use the word with the highest frequency count, then use the tie breakers
+            return tieBreaker(solutions);
         }
-
-
-        return null;
     }
 
     private Set<String> generateEditDistanceOneWords (String inputWord) {
@@ -73,9 +78,7 @@ public class SpellCorrector implements ISpellCorrector {
     private Set<String> generateEditDistanceTwoWords (Set<String> editDistanceOneWords) {
         Set<String> editDistanceTwoWords = new HashSet<>();
         for (String editDistanceOneWord : editDistanceOneWords) {
-            for (String editDistanceTwoWord : generateEditDistanceOneWords(editDistanceOneWord)) {
-                editDistanceTwoWords.add(editDistanceTwoWord);
-            }
+            editDistanceTwoWords.addAll(generateEditDistanceOneWords(editDistanceOneWord));
         }
         return editDistanceTwoWords;
     }
@@ -138,5 +141,29 @@ public class SpellCorrector implements ISpellCorrector {
             }
         }
         return words;
+    }
+
+    private String tieBreaker(Vector<String> solutions) {
+        Node winningNode = this.trie.find(solutions.elementAt(0));
+        String winningWord = solutions.elementAt(0);
+        Vector<String> winningWords = new Vector<>();
+        for (String currentWord: solutions) {
+            if (this.trie.find(currentWord).getValue() > winningNode.getValue()) {
+                winningNode = this.trie.find(currentWord);
+                winningWord = currentWord;
+            }
+        }
+        winningWords.add(winningWord);
+        for (String currentWord: solutions) {
+            if (this.trie.find(currentWord).getValue() == winningNode.getValue()) {
+                winningWords.add(currentWord);
+            }
+        }
+        if (winningWords.size() == 1) {
+            return winningWord;
+        } else {
+            Collections.sort(winningWords);
+            return winningWords.elementAt(0);
+        }
     }
 }
