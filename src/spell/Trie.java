@@ -48,7 +48,7 @@ public class Trie implements spell.ITrie {
 
     @Override
     /**
-     * returns the final node of the word
+     * returns the final node of the word if it exists, null otherwise
      */
     public Node find(String word) {
         //make the word lower case
